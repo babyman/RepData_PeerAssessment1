@@ -7,7 +7,8 @@ output:
 ---
 
 ## Loading and preprocessing the data
-```{r echo=TRUE}
+
+```r
 library(plyr)
 library(lattice)
 dataDir <- "./data"
@@ -27,7 +28,8 @@ fmt <- function(num) {
 
 
 ## What is mean total number of steps taken per day?
-```{r echo=TRUE}
+
+```r
 stepsPerDay <- aggregate(steps ~ date, data = data, FUN = "sum")
 medStepsPerDay <- median(stepsPerDay$steps)
 meanStepsPerDay <- mean(stepsPerDay$steps)
@@ -37,10 +39,13 @@ hist(x = stepsPerDay$steps,
      col = "red")
 ```
 
-The median steps taken per day is **`r fmt(medStepsPerDay)`** while the mean steps per day is **`r fmt(meanStepsPerDay)`**.
+![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+
+The median steps taken per day is **10,765** while the mean steps per day is **10,766**.
 
 ## What is the average daily activity pattern?
-```{r echo=TRUE}
+
+```r
 dailyActivity <- aggregate(steps ~ interval, data = data[!is.na(data$steps),], FUN = "mean")
 maxInterval <- dailyActivity[dailyActivity$steps == max(dailyActivity$steps),]$interval
 plot(
@@ -53,10 +58,13 @@ plot(
 )
 ```
 
-The most active 5-minute interval was **`r maxInterval`**.
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
+The most active 5-minute interval was **835**.
 
 ## Imputing missing values
-```{r echo=TRUE}
+
+```r
 naCount <- nrow(data[is.na(data$steps) == TRUE,])
 # left join the loaded data with the mean daily data
 naFixed <- merge(x = data, y = dailyActivity, by = "interval", all.x = TRUE)
@@ -72,13 +80,16 @@ hist(x = fixedStepsPerDay$fixed,
      col = "red")
 ```
 
-NA count, **`r fmt(naCount)`**.
+![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
-The median steps taken per day is **`r fmt(fixedMedStepsPerDay)`** while the mean steps per day is **`r fmt(fixedMeanStepsPerDay)`**.
+NA count, **2,304**.
+
+The median steps taken per day is **10,762** while the mean steps per day is **10,766**.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r echo=TRUE}
+
+```r
 naFixed$day <- ifelse(weekdays(naFixed$date1) %in% c("Saturday", "Sunday"), "weekend", "weekday")
 naFixed$day <- as.factor(naFixed$day)
 
@@ -94,3 +105,5 @@ xyplot(fixed ~ interval | day,
   ylab = "Number of steps",
   layout = c(1,2))
 ```
+
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
