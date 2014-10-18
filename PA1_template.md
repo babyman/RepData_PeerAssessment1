@@ -35,7 +35,8 @@ medStepsPerDay <- median(stepsPerDay$steps)
 meanStepsPerDay <- mean(stepsPerDay$steps)
 hist(x = stepsPerDay$steps,
      main = "Total Daily Steps",
-     xlab = "",
+     xlab = "Total number of steps daily",
+     ylab = "Frequency (days)",
      col = "red")
 ```
 
@@ -46,11 +47,11 @@ The median steps taken per day is **10,765** while the mean steps per day is **1
 ## What is the average daily activity pattern?
 
 ```r
-dailyActivity <- aggregate(steps ~ interval, data = data[!is.na(data$steps),], FUN = "mean")
-maxInterval <- dailyActivity[dailyActivity$steps == max(dailyActivity$steps),]$interval
+averageDailyActivity <- aggregate(steps ~ interval, data = data[!is.na(data$steps),], FUN = "mean")
+maxInterval <- averageDailyActivity[averageDailyActivity$steps == max(averageDailyActivity$steps),]$interval
 plot(
-  dailyActivity$interval,
-  dailyActivity$steps,
+  averageDailyActivity$interval,
+  averageDailyActivity$steps,
   type = "l",
   main = "Mean Daily Activity",
   ylab = "Mean Steps",
@@ -67,7 +68,7 @@ The most active 5-minute interval was **835**.
 ```r
 naCount <- nrow(data[is.na(data$steps) == TRUE,])
 # left join the loaded data with the mean daily data
-naFixed <- merge(x = data, y = dailyActivity, by = "interval", all.x = TRUE)
+naFixed <- merge(x = data, y = averageDailyActivity, by = "interval", all.x = TRUE)
 # create a new column that contains the current value or the mean value if NA
 naFixed <- mutate(naFixed, fixed = ifelse(is.na(steps.x), round(steps.y), steps.x))
 
@@ -75,16 +76,17 @@ fixedStepsPerDay <- aggregate(fixed ~ date, data = naFixed, FUN = "sum")
 fixedMedStepsPerDay <- median(fixedStepsPerDay$fixed)
 fixedMeanStepsPerDay <- mean(fixedStepsPerDay$fixed)
 hist(x = fixedStepsPerDay$fixed,
-     main = "Total Daily Steps",
-     xlab = "",
+     main = "Total Daily Steps (NA's Imputed)",
+     xlab = "Total number of steps daily",
+     ylab = "Frequency (days)",
      col = "red")
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
 
-NA count, **2,304**.
+In the original data set a total of **2,304** values were reported as NA, these have been replaced with the average activity for that interval as calculated previously.
 
-The median steps taken per day is **10,762** while the mean steps per day is **10,766**.
+The median steps taken per day with NA's replaced is **10,762** while the mean steps per day is **10,766**.  This is not significantly different than the values prior to the imputing of the missing values.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -107,3 +109,5 @@ xyplot(fixed ~ interval | day,
 ```
 
 ![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+
+The plots above indicate that people are most active earlier in the day during the week, on weekends people wake later and their activity is spread more evenly though out the day.
